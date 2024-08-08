@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
+import robotSrc from "../assets/robot.png";
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridSize = 500;
-  const createGrid = (ctx: CanvasRenderingContext2D, gridSize: number) => {
-    const boxSize = gridSize / 5;
+
+  const createGrid = (ctx: CanvasRenderingContext2D, boxSize: number) => {
     ctx.lineWidth = 1;
 
     for (let i = boxSize; i < gridSize; i += boxSize) {
@@ -20,11 +21,28 @@ const Canvas = () => {
     }
   };
 
+  const drawRobot = (ctx: CanvasRenderingContext2D, boxSize: number) => {
+    const robot = new Image();
+    robot.src = robotSrc;
+    const robotSize = boxSize - 20;
+    robot.onload = () => {
+      ctx.drawImage(
+        robot,
+        (boxSize - robotSize) / 2,
+        boxSize * 4 + (boxSize - robotSize) / 2,
+        robotSize,
+        robotSize
+      );
+    };
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-    if (context) {
-      createGrid(context, gridSize);
+    const ctx = canvas?.getContext("2d");
+    if (ctx) {
+      const boxSize = gridSize / 5;
+      createGrid(ctx, boxSize);
+      drawRobot(ctx, boxSize);
     }
   }, []);
 
@@ -35,7 +53,7 @@ const Canvas = () => {
           ref={canvasRef}
           width={gridSize}
           height={gridSize}
-          className="border-2 border-black"
+          className="border-2 border-black rounded-md"
         />
       </div>
     </div>
