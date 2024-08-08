@@ -1,7 +1,7 @@
-import React from "react";
+import Canvas from "./components/Canvas";
 
 const App = () => {
-  return <div>App</div>;
+  return <Canvas />;
 };
 
 export default App;
