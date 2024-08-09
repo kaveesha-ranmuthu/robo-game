@@ -76,31 +76,43 @@ const Canvas = () => {
     }
   }, []);
 
-  const moveRobot = (key: string) => {
+  const controlRobot = (key: string) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!currentRobotProps || !ctx) return;
 
+    const boxSize = gridSize / 5;
+    const robotSize = boxSize - 20;
     let robotProps = currentRobotProps;
+
     if (key === "ArrowUp") {
+      const newY = robotProps.y - boxSize;
       robotProps = {
         ...currentRobotProps,
         angle: 0,
+        y: newY < (boxSize - robotSize) / 2 ? robotProps.y : newY,
       };
     } else if (key === "ArrowRight") {
+      const newX = robotProps.x + boxSize;
       robotProps = {
         ...currentRobotProps,
         angle: 90,
+        x: newX >= gridSize + (boxSize - robotSize) / 2 ? robotProps.x : newX,
       };
     } else if (key === "ArrowLeft") {
+      const newX = robotProps.x - boxSize;
       robotProps = {
         ...currentRobotProps,
         angle: 270,
+        x: newX < (boxSize - robotSize) / 2 ? robotProps.x : newX,
       };
     } else if (key === "ArrowDown") {
+      const newY = robotProps.y + boxSize;
+
       robotProps = {
         ...currentRobotProps,
         angle: 180,
+        y: newY >= gridSize + (boxSize - robotSize) / 2 ? robotProps.y : newY,
       };
     } else {
       return;
@@ -120,7 +132,7 @@ const Canvas = () => {
           width={gridSize}
           height={gridSize}
           tabIndex={0}
-          onKeyDown={(e) => moveRobot(e.key)}
+          onKeyDown={(e) => controlRobot(e.key)}
           className="border-2 border-black rounded-md focus:outline-none"
         />
       </div>
