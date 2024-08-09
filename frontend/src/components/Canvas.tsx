@@ -1,9 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import robotSrc from "../assets/robot.png";
+
+type RobotProperties = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  angle: number;
+};
 
 const Canvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridSize = 500;
+  const [currentRobotProps, setCurrentRobotProps] = useState<RobotProperties>();
 
   const createGrid = (ctx: CanvasRenderingContext2D, boxSize: number) => {
     ctx.lineWidth = 1;
@@ -21,30 +30,87 @@ const Canvas = () => {
     }
   };
 
-  const drawRobot = (ctx: CanvasRenderingContext2D, boxSize: number) => {
+  const drawRobot = (
+    ctx: CanvasRenderingContext2D,
+    robotProps: RobotProperties
+  ) => {
+    if (currentRobotProps) {
+      const {
+        x: currX,
+        y: currY,
+        width: currWidth,
+        height: currHeight,
+      } = currentRobotProps;
+      ctx.clearRect(currX, currY, currWidth, currHeight);
+    }
     const robot = new Image();
     robot.src = robotSrc;
-    const robotSize = boxSize - 20;
+    const { x, y, width, height, angle } = robotProps;
     robot.onload = () => {
-      ctx.drawImage(
-        robot,
-        (boxSize - robotSize) / 2,
-        boxSize * 4 + (boxSize - robotSize) / 2,
-        robotSize,
-        robotSize
-      );
+      ctx.save();
+      ctx.translate(x + width / 2, y + height / 2);
+      ctx.rotate(degreesToRadians(angle));
+      ctx.drawImage(robot, -width / 2, -height / 2, width, height);
+      ctx.restore();
     };
+    setCurrentRobotProps(robotProps);
   };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
+    canvas?.focus();
     if (ctx) {
       const boxSize = gridSize / 5;
       createGrid(ctx, boxSize);
-      drawRobot(ctx, boxSize);
+
+      const robotSize = boxSize - 20;
+      const robotProps = {
+        x: (boxSize - robotSize) / 2,
+        y: boxSize * 4 + (boxSize - robotSize) / 2,
+        width: robotSize,
+        height: robotSize,
+        angle: 0,
+      };
+      drawRobot(ctx, robotProps);
     }
   }, []);
+
+  const moveRobot = (key: string) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!currentRobotProps || !ctx) return;
+
+    let robotProps = currentRobotProps;
+    if (key === "ArrowUp") {
+      robotProps = {
+        ...currentRobotProps,
+        angle: 0,
+      };
+    } else if (key === "ArrowRight") {
+      robotProps = {
+        ...currentRobotProps,
+        angle: 90,
+      };
+    } else if (key === "ArrowLeft") {
+      robotProps = {
+        ...currentRobotProps,
+        angle: 270,
+      };
+    } else if (key === "ArrowDown") {
+      robotProps = {
+        ...currentRobotProps,
+        angle: 180,
+      };
+    } else {
+      return;
+    }
+    drawRobot(ctx, robotProps);
+  };
+
+  const degreesToRadians = (degrees: number) => {
+    return degrees * (Math.PI / 180);
+  };
 
   return (
     <div className="flex h-screen items-center justify-center">
@@ -53,7 +119,9 @@ const Canvas = () => {
           ref={canvasRef}
           width={gridSize}
           height={gridSize}
-          className="border-2 border-black rounded-md"
+          tabIndex={0}
+          onKeyDown={(e) => moveRobot(e.key)}
+          className="border-2 border-black rounded-md focus:outline-none"
         />
       </div>
     </div>
