@@ -20,6 +20,7 @@ const Canvas: React.FC<Props> = ({ gridSize = 500 }) => {
   const createGrid = useCallback(
     (ctx: CanvasRenderingContext2D, boxSize: number) => {
       ctx.lineWidth = 1;
+      ctx.strokeStyle = "#d04f13";
 
       for (let i = boxSize; i < gridSize; i += boxSize) {
         ctx.beginPath();
@@ -119,17 +120,15 @@ const Canvas: React.FC<Props> = ({ gridSize = 500 }) => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div>
-        <canvas
-          ref={canvasRef}
-          width={gridSize}
-          height={gridSize}
-          tabIndex={0}
-          onKeyDown={(e) => moveRobot(e.key)}
-          className="border-2 border-black rounded-md focus:outline-none"
-        />
-      </div>
+    <div>
+      <canvas
+        ref={canvasRef}
+        width={gridSize}
+        height={gridSize}
+        tabIndex={0}
+        onKeyDown={(e) => moveRobot(e.key)}
+        className="border-2 border-orange rounded-md focus:outline-none"
+      />
     </div>
   );
 };
