@@ -20,7 +20,7 @@ const Canvas: React.FC<Props> = ({ gridSize = 500 }) => {
   const createGrid = useCallback(
     (ctx: CanvasRenderingContext2D, boxSize: number) => {
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "#d04f13";
+      ctx.strokeStyle = "#1d1d1d";
 
       for (let i = boxSize; i < gridSize; i += boxSize) {
         ctx.beginPath();
@@ -127,7 +127,7 @@ const Canvas: React.FC<Props> = ({ gridSize = 500 }) => {
         height={gridSize}
         tabIndex={0}
         onKeyDown={(e) => moveRobot(e.key)}
-        className="border-2 border-orange rounded-md focus:outline-none"
+        className="border-2 border-dark-gray rounded-md focus:outline-none focus:border-orange hover:border-orange hover:scale-100 focus:scale-100 scale-95 transition-all"
       />
     </div>
   );
