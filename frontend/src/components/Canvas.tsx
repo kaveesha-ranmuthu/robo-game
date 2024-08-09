@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import robotSrc from "../assets/robot.png";
 
 type RobotProperties = {
@@ -9,26 +9,32 @@ type RobotProperties = {
   angle: number;
 };
 
-const Canvas = () => {
+type Props = {
+  gridSize?: number;
+};
+
+const Canvas: React.FC<Props> = ({ gridSize = 500 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gridSize = 500;
   const [currentRobotProps, setCurrentRobotProps] = useState<RobotProperties>();
 
-  const createGrid = (ctx: CanvasRenderingContext2D, boxSize: number) => {
-    ctx.lineWidth = 1;
+  const createGrid = useCallback(
+    (ctx: CanvasRenderingContext2D, boxSize: number) => {
+      ctx.lineWidth = 1;
 
-    for (let i = boxSize; i < gridSize; i += boxSize) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i, gridSize);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(0, i);
-      ctx.lineTo(gridSize, i);
-      ctx.stroke();
-      ctx.closePath();
-    }
-  };
+      for (let i = boxSize; i < gridSize; i += boxSize) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, gridSize);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(gridSize, i);
+        ctx.stroke();
+        ctx.closePath();
+      }
+    },
+    [gridSize]
+  );
 
   const drawRobot = useCallback(
     (ctx: CanvasRenderingContext2D, newRobotProps: RobotProperties) => {
@@ -65,7 +71,7 @@ const Canvas = () => {
       drawRobot(ctx, robotProps);
       setCurrentRobotProps(robotProps);
     }
-  }, [drawRobot]);
+  }, [drawRobot, gridSize, createGrid]);
 
   const moveRobot = (key: string) => {
     const canvas = canvasRef.current;
