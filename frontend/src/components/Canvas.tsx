@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import robotSrc from "../assets/robot.png";
 
 type RobotProperties = {
@@ -30,30 +30,21 @@ const Canvas = () => {
     }
   };
 
-  const drawRobot = (
-    ctx: CanvasRenderingContext2D,
-    newRobotProps: RobotProperties
-  ) => {
-    if (currentRobotProps) {
-      const {
-        x: currX,
-        y: currY,
-        width: currWidth,
-        height: currHeight,
-      } = currentRobotProps;
-      ctx.clearRect(currX, currY, currWidth, currHeight);
-    }
-    const robot = new Image();
-    robot.src = robotSrc;
-    const { x, y, width, height, angle } = newRobotProps;
-    robot.onload = () => {
-      ctx.save();
-      ctx.translate(x + width / 2, y + height / 2);
-      ctx.rotate(degreesToRadians(angle));
-      ctx.drawImage(robot, -width / 2, -height / 2, width, height);
-      ctx.restore();
-    };
-  };
+  const drawRobot = useCallback(
+    (ctx: CanvasRenderingContext2D, newRobotProps: RobotProperties) => {
+      const robot = new Image();
+      robot.src = robotSrc;
+      const { x, y, width, height, angle } = newRobotProps;
+      robot.onload = () => {
+        ctx.save();
+        ctx.translate(x + width / 2, y + height / 2);
+        ctx.rotate(degreesToRadians(angle));
+        ctx.drawImage(robot, -width / 2, -height / 2, width, height);
+        ctx.restore();
+      };
+    },
+    []
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -74,7 +65,7 @@ const Canvas = () => {
       drawRobot(ctx, robotProps);
       setCurrentRobotProps(robotProps);
     }
-  }, []);
+  }, [drawRobot]);
 
   const moveRobot = (key: string) => {
     const canvas = canvasRef.current;
@@ -84,6 +75,12 @@ const Canvas = () => {
     const boxSize = gridSize / 5;
     const robotSize = boxSize - 20;
     const robotProps = { ...currentRobotProps };
+    const {
+      x: currX,
+      y: currY,
+      width: currWidth,
+      height: currHeight,
+    } = currentRobotProps;
 
     if (key === "ArrowUp") {
       const newY = robotProps.y - boxSize;
@@ -106,6 +103,7 @@ const Canvas = () => {
     } else {
       return;
     }
+    ctx.clearRect(currX, currY, currWidth, currHeight);
     drawRobot(ctx, robotProps);
     setCurrentRobotProps(robotProps);
   };
