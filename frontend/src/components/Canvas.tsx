@@ -32,7 +32,7 @@ const Canvas = () => {
 
   const drawRobot = (
     ctx: CanvasRenderingContext2D,
-    robotProps: RobotProperties
+    newRobotProps: RobotProperties
   ) => {
     if (currentRobotProps) {
       const {
@@ -45,7 +45,7 @@ const Canvas = () => {
     }
     const robot = new Image();
     robot.src = robotSrc;
-    const { x, y, width, height, angle } = robotProps;
+    const { x, y, width, height, angle } = newRobotProps;
     robot.onload = () => {
       ctx.save();
       ctx.translate(x + width / 2, y + height / 2);
@@ -53,7 +53,6 @@ const Canvas = () => {
       ctx.drawImage(robot, -width / 2, -height / 2, width, height);
       ctx.restore();
     };
-    setCurrentRobotProps(robotProps);
   };
 
   useEffect(() => {
@@ -73,51 +72,42 @@ const Canvas = () => {
         angle: 0,
       };
       drawRobot(ctx, robotProps);
+      setCurrentRobotProps(robotProps);
     }
   }, []);
 
-  const controlRobot = (key: string) => {
+  const moveRobot = (key: string) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!currentRobotProps || !ctx) return;
 
     const boxSize = gridSize / 5;
     const robotSize = boxSize - 20;
-    let robotProps = currentRobotProps;
+    const robotProps = { ...currentRobotProps };
 
     if (key === "ArrowUp") {
       const newY = robotProps.y - boxSize;
-      robotProps = {
-        ...currentRobotProps,
-        angle: 0,
-        y: newY < (boxSize - robotSize) / 2 ? robotProps.y : newY,
-      };
+      robotProps.angle = 0;
+      robotProps.y = newY < (boxSize - robotSize) / 2 ? robotProps.y : newY;
     } else if (key === "ArrowRight") {
       const newX = robotProps.x + boxSize;
-      robotProps = {
-        ...currentRobotProps,
-        angle: 90,
-        x: newX >= gridSize + (boxSize - robotSize) / 2 ? robotProps.x : newX,
-      };
-    } else if (key === "ArrowLeft") {
-      const newX = robotProps.x - boxSize;
-      robotProps = {
-        ...currentRobotProps,
-        angle: 270,
-        x: newX < (boxSize - robotSize) / 2 ? robotProps.x : newX,
-      };
+      robotProps.angle = 90;
+      robotProps.x =
+        newX >= gridSize + (boxSize - robotSize) / 2 ? robotProps.x : newX;
     } else if (key === "ArrowDown") {
       const newY = robotProps.y + boxSize;
-
-      robotProps = {
-        ...currentRobotProps,
-        angle: 180,
-        y: newY >= gridSize + (boxSize - robotSize) / 2 ? robotProps.y : newY,
-      };
+      robotProps.angle = 180;
+      robotProps.y =
+        newY >= gridSize + (boxSize - robotSize) / 2 ? robotProps.y : newY;
+    } else if (key === "ArrowLeft") {
+      const newX = robotProps.x - boxSize;
+      robotProps.angle = 270;
+      robotProps.x = newX < (boxSize - robotSize) / 2 ? robotProps.x : newX;
     } else {
       return;
     }
     drawRobot(ctx, robotProps);
+    setCurrentRobotProps(robotProps);
   };
 
   const degreesToRadians = (degrees: number) => {
@@ -132,7 +122,7 @@ const Canvas = () => {
           width={gridSize}
           height={gridSize}
           tabIndex={0}
-          onKeyDown={(e) => controlRobot(e.key)}
+          onKeyDown={(e) => moveRobot(e.key)}
           className="border-2 border-black rounded-md focus:outline-none"
         />
       </div>
